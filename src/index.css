@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-void: #0a0c0f;
+  --color-ink: #0e1114;
+  --color-panel: #14171c;
+  --color-panel-raised: #1b1f26;
+  --color-panel-line: #262b33;
+
+  --color-brass: #b8935b;
+  --color-brass-bright: #d4af7a;
+  --color-brass-dim: #7a6142;
+
+  --color-indigo-deep: #2b4c6f;
+  --color-indigo-bright: #4d7ba3;
+
+  --color-parchment: #e8e2d4;
+  --color-parchment-dim: #a8a396;
+  --color-muted: #767b85;
+
+  --color-verdant: #4a7c59;
+  --color-verdant-bright: #6ba57d;
+  --color-oxblood: #8b3a3a;
+  --color-oxblood-bright: #b25454;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-parchment);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(184, 147, 91, 0.045), transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(43, 76, 111, 0.06), transparent 45%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background-color: var(--color-brass-dim);
+  color: var(--color-parchment);
+}
+
+/* Scrollbar - understated */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-panel-line);
+  border-radius: 0;
+  border: 2px solid var(--color-ink);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brass-dim);
+}
+
+/* Focus visibility - accessibility floor */
+:focus-visible {
+  outline: 1.5px solid var(--color-brass);
+  outline-offset: 2px;
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-brass);
+}
+
+.hairline {
+  border-color: var(--color-panel-line);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

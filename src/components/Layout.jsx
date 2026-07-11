@@ -1,9 +1,12 @@
 import Sidebar from "./Sidebar";
 import StatStrip from "./StatStrip";
+import LevelUpModal from "./LevelUpModal";
+import BadgeUnlockToast from "./BadgeUnlockToast";
 import { useApp } from "../context/AppContext";
 
 export default function Layout({ title, eyebrow, actions, children }) {
-  const { currentUser } = useApp();
+  const { currentUser, levelUpEvent, dismissLevelUp, badgeQueue, dismissBadge } = useApp();
+  const isMember = currentUser?.role !== "admin";
   return (
     <div className="flex min-h-screen bg-[var(--color-void)]">
       <Sidebar />
@@ -24,6 +27,16 @@ export default function Layout({ title, eyebrow, actions, children }) {
         </header>
         <main className="px-8 py-8">{children}</main>
       </div>
+
+      {/* Celebrations are mounted once here (not per-page) so a rank-up or
+          badge earned from any source shows up no matter what the user is
+          looking at. Admins never see these. */}
+      {isMember && (
+        <>
+          <LevelUpModal event={levelUpEvent} onDismiss={dismissLevelUp} />
+          <BadgeUnlockToast queue={badgeQueue} onDismiss={dismissBadge} />
+        </>
+      )}
     </div>
   );
 }

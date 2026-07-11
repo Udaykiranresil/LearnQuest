@@ -74,12 +74,23 @@ export function computeStreakUpdate(user) {
 
 // Badge unlock rules — evaluated against a user's live stats each time
 // progress changes. Kept declarative so admins can eventually extend this.
+// Rarity drives the visual treatment of a badge (shelf border + unlock
+// celebration). Kept as a plain tier string so it's easy for admins/design
+// to reason about later without touching animation code.
+export const RARITY = {
+  COMMON: "common",
+  RARE: "rare",
+  EPIC: "epic",
+  LEGENDARY: "legendary",
+};
+
 export const BADGE_RULES = [
   {
     id: "first-step",
     name: "First Step",
     description: "Complete your first subtopic.",
     icon: "Footprints",
+    rarity: RARITY.COMMON,
     check: (stats) => stats.completedCount >= 1,
   },
   {
@@ -87,6 +98,7 @@ export const BADGE_RULES = [
     name: "Ten Marks",
     description: "Complete ten subtopics.",
     icon: "ListChecks",
+    rarity: RARITY.COMMON,
     check: (stats) => stats.completedCount >= 10,
   },
   {
@@ -94,6 +106,7 @@ export const BADGE_RULES = [
     name: "Chapter Closed",
     description: "Finish an entire course.",
     icon: "BookCheck",
+    rarity: RARITY.RARE,
     check: (stats) => stats.coursesCompleted >= 1,
   },
   {
@@ -101,6 +114,7 @@ export const BADGE_RULES = [
     name: "Iron Streak",
     description: "Maintain a 7-day streak.",
     icon: "Flame",
+    rarity: RARITY.RARE,
     check: (stats) => stats.streak >= 7,
   },
   {
@@ -108,6 +122,7 @@ export const BADGE_RULES = [
     name: "Unbroken",
     description: "Maintain a 30-day streak.",
     icon: "ShieldCheck",
+    rarity: RARITY.EPIC,
     check: (stats) => stats.streak >= 30,
   },
   {
@@ -115,6 +130,7 @@ export const BADGE_RULES = [
     name: "Architect",
     description: "Submit your first project.",
     icon: "FolderGit2",
+    rarity: RARITY.COMMON,
     check: (stats) => stats.projectsSubmitted >= 1,
   },
   {
@@ -122,6 +138,7 @@ export const BADGE_RULES = [
     name: "Shipped",
     description: "Get a project approved.",
     icon: "BadgeCheck",
+    rarity: RARITY.RARE,
     check: (stats) => stats.projectsApproved >= 1,
   },
   {
@@ -129,6 +146,7 @@ export const BADGE_RULES = [
     name: "Polymath",
     description: "Complete three separate courses.",
     icon: "Crown",
+    rarity: RARITY.LEGENDARY,
     check: (stats) => stats.coursesCompleted >= 3,
   },
 ];

@@ -16,10 +16,16 @@ export default function MasteryRing({
   const circOuter = 2 * Math.PI * radiusOuter;
   const circInner = 2 * Math.PI * radiusInner;
 
+  const glowOpacity = clamped > 0.6 ? (clamped - 0.6) / 0.4 : 0;
+
   return (
     <div
-      className="relative inline-flex items-center justify-center"
-      style={{ width: size, height: size }}
+      className="relative inline-flex items-center justify-center transition-shadow duration-700"
+      style={{
+        width: size,
+        height: size,
+        filter: glowOpacity > 0 ? `drop-shadow(0 0 ${8 + glowOpacity * 10}px rgba(212,175,122,${glowOpacity * 0.5}))` : "none",
+      }}
     >
       <svg
         width={size}

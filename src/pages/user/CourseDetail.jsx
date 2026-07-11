@@ -5,7 +5,7 @@ import { Lock, FolderGit2, ArrowRight, ArrowLeft } from "lucide-react";
 import Layout from "../../components/Layout";
 import MasteryRing from "../../components/MasteryRing";
 import TopicNode from "../../components/TopicNode";
-import Toast from "../../components/Toast";
+import XpBurst from "../../components/XpBurst";
 import { useApp } from "../../context/AppContext";
 import { getCourseProgress } from "../../lib/courseTree";
 
@@ -13,7 +13,7 @@ export default function CourseDetail() {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const { currentUser, courses, projects, completeSubtopic, uncompleteSubtopic } = useApp();
-  const [toasts, setToasts] = useState([]);
+  const [bursts, setBursts] = useState([]);
 
   const course = courses.find((c) => c.id === courseId);
   if (!course) {
@@ -28,25 +28,28 @@ export default function CourseDetail() {
   const project = projects.find((p) => p.id === course.projectId);
   const CIcon = Icons[course.icon] || Icons.BookOpen;
 
-  function pushToast(toast) {
+  function spawnXpBurst(x, y, amount) {
     const key = `${Date.now()}-${Math.random()}`;
-    setToasts((prev) => [...prev, { ...toast, key }]);
+    setBursts((prev) => [...prev, { key, x, y, amount }]);
     setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.key !== key));
-    }, 3200);
+      setBursts((prev) => prev.filter((b) => b.key !== key));
+    }, 950);
   }
 
-  async function handleToggleLeaf(node) {
+  async function handleToggleLeaf(node, e) {
     const isDone = currentUser.completedIds.includes(node.id);
     if (isDone) {
       uncompleteSubtopic(currentUser.id, node.id, node.xp);
       return;
     }
-    pushToast({ message: `+${node.xp} XP earned` });
-    const newBadgeIds = await completeSubtopic(currentUser.id, node.id, node.xp);
-    newBadgeIds.forEach((badgeId) => {
-      setTimeout(() => pushToast({ badgeId }), 400);
-    });
+    // Spawn the XP callout right at the checkbox that was clicked, so the
+    // reward reads as a direct consequence of the action instead of a
+    // disconnected corner notification.
+    const rect = e.currentTarget.getBoundingClientRect();
+    spawnXpBurst(rect.right - 28, rect.top + rect.height / 2, node.xp);
+    // Badge celebrations are handled globally (AppContext -> Layout) so they
+    // fire consistently no matter what page triggered the unlock.
+    await completeSubtopic(currentUser.id, node.id, node.xp);
   }
 
   return (
@@ -125,7 +128,7 @@ export default function CourseDetail() {
         </div>
       </div>
 
-      <Toast toasts={toasts} />
+      <XpBurst bursts={bursts} />
     </Layout>
   );
 }

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { supabase, usernameToEmail } from "../lib/supabaseClient";
+import { getRankForXp } from "../lib/gameLogic";
 
 const AppContext = createContext(null);
 
@@ -119,6 +120,56 @@ export function AppProvider({ children }) {
   }, [refreshAll]);
 
   const currentUser = users.find((u) => u.id === currentUserId) || null;
+
+  // --- Celebration events (level-up, badge unlock) --------------------------
+  // Tracked centrally rather than per-page so a rank-up or badge earned via
+  // ANY path (completing a subtopic, an admin approving a project, etc.)
+  // reliably triggers its celebration wherever the user happens to be.
+  const [levelUpEvent, setLevelUpEvent] = useState(null);
+  const [badgeQueue, setBadgeQueue] = useState([]);
+  const celebrationBaseline = useRef({ userId: null, xp: null, badges: null });
+
+  useEffect(() => {
+    if (!currentUser) {
+      celebrationBaseline.current = { userId: null, xp: null, badges: null };
+      return;
+    }
+    const baseline = celebrationBaseline.current;
+
+    // First time we see this user (fresh login/page load) — record a
+    // baseline silently. We never want a celebration for state the user
+    // already had before we started watching.
+    if (baseline.userId !== currentUser.id) {
+      celebrationBaseline.current = {
+        userId: currentUser.id,
+        xp: currentUser.xp,
+        badges: currentUser.badges,
+      };
+      return;
+    }
+
+    if (currentUser.xp > baseline.xp) {
+      const prevRank = getRankForXp(baseline.xp);
+      const newRank = getRankForXp(currentUser.xp);
+      if (newRank.level > prevRank.level) {
+        setLevelUpEvent({ level: newRank.level, name: newRank.name });
+      }
+    }
+
+    const newlyEarned = currentUser.badges.filter((b) => !baseline.badges.includes(b));
+    if (newlyEarned.length > 0) {
+      setBadgeQueue((q) => [...q, ...newlyEarned]);
+    }
+
+    celebrationBaseline.current = {
+      userId: currentUser.id,
+      xp: currentUser.xp,
+      badges: currentUser.badges,
+    };
+  }, [currentUser]);
+
+  const dismissLevelUp = useCallback(() => setLevelUpEvent(null), []);
+  const dismissBadge = useCallback(() => setBadgeQueue((q) => q.slice(1)), []);
 
   const login = useCallback(async (username, password) => {
     const email = usernameToEmail(username);
@@ -395,6 +446,10 @@ export function AppProvider({ children }) {
     addUser,
     resetPassword,
     deleteUser,
+    levelUpEvent,
+    dismissLevelUp,
+    badgeQueue,
+    dismissBadge,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

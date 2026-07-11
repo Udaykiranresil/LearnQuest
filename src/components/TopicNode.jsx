@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, Check, Circle } from "lucide-react";
 import { getNodeProgress } from "../lib/courseTree";
 
@@ -21,7 +22,7 @@ export default function TopicNode({
   if (isLeaf) {
     return (
       <button
-        onClick={() => onToggleLeaf(node)}
+        onClick={(e) => onToggleLeaf(node, e)}
         className={`w-full flex items-center gap-3.5 text-left py-3 pl-[var(--indent)] pr-4 border-b border-[var(--color-panel-line)] transition-colors hover:bg-[var(--color-panel-raised)]/50 group`}
         style={{ "--indent": `${depth * 28 + 16}px` }}
       >
@@ -45,11 +46,22 @@ export default function TopicNode({
               : "border-[var(--color-panel-line)] group-hover:border-[var(--color-brass)]"
           }`}
         >
-          {done ? (
-            <Check size={13} strokeWidth={2.5} className="text-[var(--color-void)]" />
-          ) : (
-            <Circle size={0} />
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            {done ? (
+              <motion.span
+                key="done"
+                initial={{ scale: 0, rotate: -35 }}
+                animate={{ scale: 1, rotate: 0 }}
+                exit={{ scale: 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 18 }}
+                className="flex items-center justify-center"
+              >
+                <Check size={13} strokeWidth={2.5} className="text-[var(--color-void)]" />
+              </motion.span>
+            ) : (
+              <Circle key="empty" size={0} />
+            )}
+          </AnimatePresence>
         </span>
       </button>
     );
